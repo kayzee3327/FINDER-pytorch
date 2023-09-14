@@ -8,6 +8,7 @@ Created on Tue Dec 19 00:33:33 2017
 
 from __future__ import print_function, division
 import torch
+import torch.nn as nn
 import numpy as np
 import networkx as nx
 import random
@@ -53,3 +54,44 @@ cdef double inf = 2147483647/2
 cdef int max_bp_iter = 3
 cdef int aggregatorID = 0 #0:sum; 1:mean; 2:GCN
 cdef int embeddingMethod = 1   #0:structure2vec; 1:graphsage
+
+class FINDER(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # init some parameters
+        self.embedding_size = EMBEDDING_SIZE
+        self.learning_rate = LEARNING_RATE
+        self.g_type = 'barabasi_albert'  #erdos_renyi, powerlaw, small-world， barabasi_albert
+        self.TrainSet = graph.py_GSet()
+        self.TestSet = graph.py_GSet()
+        self.inputs = dict()
+        self.reg_hidden = REG_HIDDEN
+        self.utils = utils.py_Utils()
+
+        ############----------------------------- variants of DQN(start) ------------------- ###################################
+        self.IsHuberloss = False
+        self.IsDoubleDQN = False
+        self.IsPrioritizedSampling = False
+        self.IsMultiStepDQN = True  ##(if IsNStepDQN=False, N_STEP==1)
+        ############----------------------------- variants of DQN(end) ------------------- ###################################
+
+        #Simulator
+        self.ngraph_train = 0
+        self.ngraph_test = 0
+        self.env_list = []
+        self.g_list = []
+        self.pred = []
+        if self.IsPrioritizedSampling:
+            self.nStepReplayMem = nstep_replay_mem_prioritized.py_Memory(epsilon, alpha, beta,
+                                                                         beta_increment_per_sampling, TD_err_upper,
+                                                                         MEMORY_SIZE)
+        else:
+            self.nStepReplayMem = nstep_replay_mem.py_NStepReplayMem(MEMORY_SIZE)
+
+        for i in range(num_env):
+            self.env_list.append(mvc_env.py_MvcEnv(NUM_MAX))
+            self.g_list.append(graph.py_Graph())
+
+        self.test_env = mvc_env.py_MvcEnv(NUM_MAX)
+

@@ -4,6 +4,7 @@ import numpy as np
 import graph
 from libc.stdlib cimport malloc
 from libc.stdlib cimport free
+#from libcpp.vector cimport vector
 from graph cimport Graph
 import torch
 from scipy.sparse import coo_matrix
@@ -114,14 +115,15 @@ cdef class py_PrepareBatchGraph:
         return deref(self.inner_PrepareBatchGraph).avail_act_cnt
 
     cdef ConvertSparseToTensor(self,sparseMatrix matrix):
-
         rowIndex= matrix.rowIndex
         colIndex= matrix.colIndex
-        data= matrix.value
+        data = matrix.value
+
+
         rowNum= matrix.rowNum
         colNum= matrix.colNum
-        indices = np.mat([rowIndex, colIndex]).transpose()
-        return torch.sparse_coo_tensor(indices, data, [rowNum, colNum])
+        indices = np.mat([rowIndex, colIndex])
+        return torch.sparse_coo_tensor(indices, data, [rowNum, colNum], dtype=torch.float32)
 
 
 

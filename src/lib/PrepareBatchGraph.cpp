@@ -125,9 +125,9 @@ void PrepareBatchGraph::SetupGraphInput(std::vector<int> idxes,
 
             temp_feat.push_back((double)counter / (double)g->edge_list.size());
 
-         temp_feat.push_back((double)twohop_number / ((double)g->num_nodes * (double)g->num_nodes));
+        temp_feat.push_back((double)twohop_number / ((double)g->num_nodes * (double)g->num_nodes));
 
-          temp_feat.push_back(1.0);
+        temp_feat.push_back(1.0);
 
         node_cnt += avail_act_cnt[i];
         aux_feat.push_back(temp_feat);
